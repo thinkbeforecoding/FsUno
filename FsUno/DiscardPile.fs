@@ -1,0 +1,68 @@
+﻿[<AutoOpen>]
+module DiscardPile
+
+type State =
+    {
+        GameId: GameId
+        PlayerCount: int
+        CurrentPlayer: int
+        TopCard: Card
+    }
+
+let empty =
+    {
+        State.GameId = 0
+        PlayerCount = 0
+        CurrentPlayer = 0
+        TopCard = Digit(0,Red)
+    }
+
+
+// Operations on the DiscardPile aggregate
+
+let startGame gameId playerCount firstCard state : Event list =
+    [{ GameStarted.GameId = gameId; PlayerCount = playerCount; FirstCard = firstCard }]
+
+let playCard gameId player card state : Event list =
+    if player <> state.CurrentPlayer then invalidOp "Player should play at his turn"
+
+    match card, state.TopCard with
+    | Digit(n1, color1), Digit(n2, color2) when n1 = n2 || color1 = color2 ->
+        [ {CardPlayed.GameId = gameId; Player = player; Card = card }]
+    | _ -> invalidOp "Play same color or same value !"
+
+
+
+// Applies state changes for events
+
+let apply (state: State) (event: Event) =
+    match event with
+    | :? GameStarted as e -> 
+        { state with 
+            GameId = e.GameId 
+            PlayerCount = e.PlayerCount
+            CurrentPlayer = 0
+            TopCard = e.FirstCard
+        }
+    | :? CardPlayed as e ->
+        { state with
+            CurrentPlayer = (state.CurrentPlayer + 1) % state.PlayerCount
+            TopCard = e.Card
+        }
+    | _ -> state
+
+// Replays all events from start to get current state
+
+let replay (events : Event list) =
+    List.fold apply empty events
+
+
+
+// Map commands to aggregates operations
+
+let handle (command: Command) =
+    match command with
+    | :? StartGame as c -> startGame c.GameId c.PlayerCount c.FirstCard
+    | :? PlayCard as c -> playCard c.GameId c.Player c.Card
+    | _ -> invalidArg "command" "This command cannot be processed by discard pile"
+

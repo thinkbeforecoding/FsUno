@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsUno", "FsUno\FsUno.fsproj", "{B289FB60-57BC-4270-8E49-517A0E369EBF}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsUno.Tests", "FsUno.Tests\FsUno.Tests.fsproj", "{6DE8150D-911D-42EE-BEDC-307759576D1B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B289FB60-57BC-4270-8E49-517A0E369EBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B289FB60-57BC-4270-8E49-517A0E369EBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B289FB60-57BC-4270-8E49-517A0E369EBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B289FB60-57BC-4270-8E49-517A0E369EBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DE8150D-911D-42EE-BEDC-307759576D1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE8150D-911D-42EE-BEDC-307759576D1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE8150D-911D-42EE-BEDC-307759576D1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE8150D-911D-42EE-BEDC-307759576D1B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
