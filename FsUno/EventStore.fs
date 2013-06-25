@@ -10,11 +10,24 @@ type IPublisher =
     abstract member Publish : event: Event -> unit
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 type Stream =
     {
         mutable Events:  (Event * int) list
     }
-
 
 type InMemoryEventStore(publisher: IPublisher) =
     let mutable streams = Map.empty
@@ -80,9 +93,10 @@ type NullEvent() =
     interface Event
 
 [<CLIMutable>]
-type DigitData =
+type CardData =
     {
-        Digit: int
+        Type: string
+        Digit: Nullable<int>
         Color: string
     }
 
@@ -90,11 +104,13 @@ type DigitData =
 type EventStore (publisher: IPublisher) =
     let store = EventStoreConnection.Create()
 
+    let nullEvent = NullEvent() :> Event
+
     let deserialize (event: ResolvedEvent) =
         let event = event.Event
         let t = Assembly.GetExecutingAssembly().GetType(event.EventType) 
         if t = null then
-            NullEvent() :> Event
+            nullEvent
         else
             use stream = new MemoryStream(event.Data);
             JsonSerializer.DeserializeFromStream(t, stream) :?> Event
@@ -115,11 +131,12 @@ type EventStore (publisher: IPublisher) =
     member this.Start() =
         JsConfig<Card>.RawSerializeFn <- fun (c: Card) ->
             match c with
-            | Digit(n, color) -> JsonSerializer.SerializeToString({Digit=n; Color= sprintf "%A" color})
+            | Digit(n, color) -> JsonSerializer.SerializeToString({Type = "Digit"; Digit= Nullable n; Color= sprintf "%A" color})
+            | KickBack(color) -> JsonSerializer.SerializeToString({ Type = "KickBack"; Color = sprintf "%A" color; Digit = Nullable<int>()})
             | _ -> "{}"
-        
+       
         let a = fun text -> 
-                let d = JsonSerializer.DeserializeFromString<DigitData>(text)
+                let d = JsonSerializer.DeserializeFromString<CardData>(text)
                 let color = 
                     match d.Color with
                     | "Red" -> Red
@@ -127,7 +144,11 @@ type EventStore (publisher: IPublisher) =
                     | "Blue" -> Blue
                     | "Yellow" -> Yellow
                     | _ -> raise (Exception("Unknown color"))
-                Digit(d.Digit, color) 
+                match d.Type with
+                | "Digit" -> Digit(d.Digit.Value, color)
+                | "KickBack" -> KickBack(color)
+                | _ -> raise (Exception("Unknown card type"))
+                 
         JsConfig<Card>.RawDeserializeFn <- new Func<string,Card>(a)
             
         store.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))

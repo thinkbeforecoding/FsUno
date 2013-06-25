@@ -40,6 +40,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
+    <Compile Include="Operators.fs" />
     <Compile Include="Deck.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Events.fs" />

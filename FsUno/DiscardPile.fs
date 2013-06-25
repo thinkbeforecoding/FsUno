@@ -8,7 +8,6 @@ type State =
         PlayerCount: int
         CurrentPlayer: int
         TopCard: Card
-        Direction: Direction
     }
 
 let empty =
@@ -18,7 +17,6 @@ let empty =
         PlayerCount = 0
         CurrentPlayer = 0
         TopCard = Digit(0,Red)
-        Direction = ClockWise
     }
 
 
@@ -50,20 +48,9 @@ let startGame gameId playerCount firstCard state : Event list =
 let playCard gameId player card state : Event list =
     if player <> state.CurrentPlayer then invalidOp "Player should play at his turn"
 
-    let reverse =
-        function
-        | ClockWise -> CounterClockWise
-        | CounterClockWise -> ClockWise
-
     match card, state.TopCard with
     | Digit(n1, color1), Digit(n2, color2) when n1 = n2 || color1 = color2 ->
         [ {CardPlayed.GameId = gameId; Player = player; Card = card }]
-    | KickBack(color1), Digit(_, color2) when color1 = color2 ->
-        [ 
-          {GameDirectionChanged.GameId=gameId; Direction = reverse state.Direction }
-          {CardPlayed.GameId = gameId; Player = player; Card = card }
-        ]
-
     | _ -> invalidOp "Play same color or same value !"
 
 
@@ -98,19 +85,12 @@ let apply (state: State) (event: Event) =
                 (state.CurrentPlayer + 1) % state.PlayerCount
             TopCard = e.Card
         }
-    | :? GameDirectionChanged as e ->
-        {
-            state with
-            Direction = e.Direction
-        }
     | _ -> state
 
 // Replays all events from start to get current state
 
 let replay (events : Event list) =
     List.fold apply empty events
-
-
 
 // Map commands to aggregates operations
 

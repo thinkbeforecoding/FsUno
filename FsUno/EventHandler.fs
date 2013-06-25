@@ -6,13 +6,17 @@ type EventHandler() =
     let mutable turnCount = 0
 
     let setColor card =
-        let color = match card with
-            | Digit(_, Red) -> ConsoleColor.Red
-            | Digit(_, Green) -> ConsoleColor.Green
-            | Digit(_, Blue) -> ConsoleColor.Blue
-            | Digit(_, Yellow) -> ConsoleColor.Yellow
-            | _ -> ConsoleColor.White
-
+        let color = 
+            match card with
+            | Digit(_, c) -> Some c
+            | KickBack c -> Some c
+            | _ -> None
+            |> function
+               | Some Red -> ConsoleColor.Red
+               | Some Green -> ConsoleColor.Green
+               | Some Blue -> ConsoleColor.Blue
+               | Some Yellow -> ConsoleColor.Yellow
+               | None -> ConsoleColor.White
         Console.ForegroundColor <- color
 
     interface IPublisher with

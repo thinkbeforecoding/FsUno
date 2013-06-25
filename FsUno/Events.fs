@@ -29,7 +29,6 @@ type GameDirectionChanged =
     {
         GameId: GameId
         Direction: Direction
-
     }
     interface Event
 
