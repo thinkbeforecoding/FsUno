@@ -11,4 +11,8 @@ type Color =
 
 type Card =
     | Digit of int * Color
+    | KickBack of Color
 
+type Direction =
+    | ClockWise
+    | CounterClockWise

@@ -49,6 +49,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PrettyPrint.fs" />
     <Compile Include="Specifications.fs" />
     <Compile Include="When starting game.fs" />
     <Compile Include="When playing card.fs" />

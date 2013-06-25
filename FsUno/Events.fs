@@ -4,6 +4,8 @@ module Events
 type Event =
     interface
     end
+
+
 [<CLIMutable>]
 type GameStarted =
     {
@@ -21,3 +23,23 @@ type CardPlayed =
         Card: Card
     }
     interface Event
+
+[<CLIMutable>]
+type GameDirectionChanged =
+    {
+        GameId: GameId
+        Direction: Direction
+
+    }
+    interface Event
+
+
+
+
+
+
+
+
+
+
+

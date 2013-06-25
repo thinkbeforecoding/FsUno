@@ -6,6 +6,7 @@ open System
 [<TestFixture>]
 module ``When playing card`` =
     
+
     [<Test>]
     let ``Same color should be accepted``() =
         Given [ { GameStarted.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red)} ] |>
@@ -14,6 +15,20 @@ module ``When playing card`` =
             { CardPlayed.GameId = 1; Player = 0; Card = Digit(9, Red) }
         ]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     [<Test>]
     let ``Same value should be accepted``() =
         Given [ { GameStarted.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red)} ] |>
@@ -21,6 +36,9 @@ module ``When playing card`` =
         Expect [
             { CardPlayed.GameId = 1; Player = 0; Card = Digit(3, Yellow) }
         ]
+
+
+
 
     [<Test>]
     let ``Different value and color should be rejected``() =

@@ -6,9 +6,10 @@ open FsUno
 [<EntryPoint>]
 let main argv = 
 
-    let store = new InMemoryEventStore(new EventHandler())
-
+    //let store = new EventStore(new EventHandler())
     //store.Start()
+
+    let store = new InMemoryEventStore(new EventHandler())
 
     let commandHandler = new DiscardPileCommandHandler(store)
 
@@ -24,6 +25,7 @@ let main argv =
     
     commandHandler.handle({PlayCard.GameId = 1; Player = 0; Card = Digit(4, Green)})
 
+    
     //store.Stop()
 
     0 // return an integer exit code

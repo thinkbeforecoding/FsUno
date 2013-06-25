@@ -27,7 +27,6 @@ type EventHandler() =
                 turnCount <- turnCount + 1
                 setColor e.Card
                 printfn "[%d] Player %d played %A" turnCount e.Player e.Card
-
             | _ -> ()
 
 

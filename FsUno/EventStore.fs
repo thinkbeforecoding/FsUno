@@ -9,10 +9,12 @@ type IEventStore =
 type IPublisher =
     abstract member Publish : event: Event -> unit
 
+
 type Stream =
     {
         mutable Events:  (Event * int) list
     }
+
 
 type InMemoryEventStore(publisher: IPublisher) =
     let mutable streams = Map.empty
@@ -84,6 +86,7 @@ type DigitData =
         Color: string
     }
 
+
 type EventStore (publisher: IPublisher) =
     let store = EventStoreConnection.Create()
 
@@ -135,7 +138,6 @@ type EventStore (publisher: IPublisher) =
  
     interface IEventStore with
         member this.GetEvents streamId version =
-            
             let rec getEvents position = 
                 seq {
                     let slice = store.ReadStreamEventsForward(streamId, position, 500, true)
