@@ -3,7 +3,7 @@
 exception WrongExpectedVersion
 
 type IEventStore =
-    abstract member GetEvents : streamId: string -> version: int -> Event list
+    abstract member GetEvents : streamId: string -> version: int -> Event option list
     abstract member SaveEvents : streamId: string -> expectedVersion: int -> events: Event list -> unit
 
 type IPublisher =
@@ -39,8 +39,7 @@ type InMemoryEventStore(publisher: IPublisher) =
                 seq { 
                     for event, eventVersion in stream.Events do
                     if eventVersion >= version then
-                        yield event                        
-                }
+                        yield Some event }
                 |> Seq.toList 
                 |> List.rev
             
@@ -89,9 +88,6 @@ open System.Reflection
 open EventStore.ClientAPI
 open ServiceStack.Text
 
-type NullEvent() =
-    interface Event
-
 [<CLIMutable>]
 type CardData =
     {
@@ -104,16 +100,14 @@ type CardData =
 type EventStore (publisher: IPublisher) =
     let store = EventStoreConnection.Create()
 
-    let nullEvent = NullEvent() :> Event
-
     let deserialize (event: ResolvedEvent) =
         let event = event.Event
         let t = Assembly.GetExecutingAssembly().GetType(event.EventType) 
         if t = null then
-            nullEvent
+            None
         else
             use stream = new MemoryStream(event.Data);
-            JsonSerializer.DeserializeFromStream(t, stream) :?> Event
+            Some (JsonSerializer.DeserializeFromStream(t, stream) :?> Event)
 
     let serialize (event: Event) =
         use stream = new MemoryStream()

@@ -2,21 +2,10 @@
 module Commands
 
 type Command =
-    interface
-    end
+    | StartGame of GameId: GameId * PlayerCount: int * FirstCard: Card
+    | PlayCard of GameId: GameId * Player: int * Card: Card
 
-type StartGame =
-    {
-        GameId: GameId
-        PlayerCount: int
-        FirstCard: Card
-    }
-    interface Command
-
-type PlayCard =
-    {
-        GameId: GameId
-        Player: int
-        Card: Card
-    }
-    interface Command
+let gameId =
+    function
+    | StartGame(id, _, _) -> id
+    | PlayCard(id, _, _) -> id

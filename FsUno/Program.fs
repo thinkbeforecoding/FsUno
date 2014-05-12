@@ -13,17 +13,17 @@ let main argv =
 
     let commandHandler = new DiscardPileCommandHandler(store)
 
-    commandHandler.handle({StartGame.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red)})
+    commandHandler.handle(StartGame(1, 4, Digit(3, Red)))
     
-    commandHandler.handle({PlayCard.GameId = 1; Player = 0; Card = Digit(3, Blue)})
+    commandHandler.handle(PlayCard(1, 0, Digit(3, Blue)))
 
-    commandHandler.handle({PlayCard.GameId = 1; Player = 1; Card = Digit(8, Blue)})
+    commandHandler.handle(PlayCard(1, 1, Digit(8, Blue)))
     
-    commandHandler.handle({PlayCard.GameId = 1; Player = 2; Card = Digit(8, Yellow)})
+    commandHandler.handle(PlayCard(1, 2, Digit(8, Yellow)))
     
-    commandHandler.handle({PlayCard.GameId = 1; Player = 3; Card = Digit(4, Yellow)})
+    commandHandler.handle(PlayCard(1, 3, Digit(4, Yellow)))
     
-    commandHandler.handle({PlayCard.GameId = 1; Player = 0; Card = Digit(4, Green)})
+    commandHandler.handle(PlayCard(1, 0, Digit(4, Green)))
 
     
     //store.Stop()

@@ -12,21 +12,19 @@ module ``When starting game`` =
 
     [<Test>]
     let ``Started game should be started``() =
-        Given []                                                                      |>
-        When { StartGame.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red)}      |>
-        Expect [
-            { GameStarted.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red) }
-        ]
+        Given []
+        |> When ( StartGame(1, 4, Digit(3, Red)))
+        |> Expect [ GameStarted(1, 4, Digit(3, Red) ) ]
 
     [<Test>]
     let ``0 players should be rejected``() =
-        Given []                                                                      |>
-        When { StartGame.GameId = 1; PlayerCount = 0; FirstCard = Digit(3, Red)}      |>
-        ExpectThrows<ArgumentException>
+        Given []
+        |> When ( StartGame(1, 0, Digit(3, Red)))
+        |> ExpectThrows<ArgumentException>
 
 
     [<Test>]
     let ``Game should not be started twice``() =
-        Given [{ GameStarted.GameId = 1; PlayerCount = 4; FirstCard = Digit(3, Red) }]                                                                      |>
-        When { StartGame.GameId = 1; PlayerCount = 4; FirstCard = Digit(2, Red)}      |>
-        ExpectThrows<InvalidOperationException>
+        Given [GameStarted(1, 4, Digit(3, Red) )]
+        |> When ( StartGame(1, 4, Digit(2, Red)))
+        |> ExpectThrows<InvalidOperationException>

@@ -23,14 +23,15 @@ type EventHandler() =
 
         member this.Publish event =
             match event with
-            | :? GameStarted as e ->
-                printfn "Game %d started with %d players" e.GameId e.PlayerCount
-                printfn "First card: %A" e.FirstCard
+            | GameStarted(id, playerCount, firstCard) ->
+                printfn "Game %d started with %d players" id playerCount
+                printfn "First card: %A" firstCard
 
-            | :? CardPlayed as e ->
+            | CardPlayed(id, player, card) ->
                 turnCount <- turnCount + 1
-                setColor e.Card
-                printfn "[%d] Player %d played %A" turnCount e.Player e.Card
-            | _ -> ()
+                setColor card
+                printfn "[%d] Player %d played %A" turnCount player card
+            | GameDirectionChanged(id, direction) ->
+                printfn "    Game direction changed: %A" direction
 
 

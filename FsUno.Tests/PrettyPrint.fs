@@ -7,15 +7,14 @@ let printCard =
     
 let printEvent (event: Event) =
     match event with
-    | :? GameStarted as e -> sprintf "Game %d started with %d players. Top Card is %s" e.GameId e.PlayerCount (printCard e.FirstCard)
-    | :? CardPlayed as e -> sprintf "Player %d played %s" e.Player (printCard e.Card)
-    | _ -> ""
+    | GameStarted(id, playerCount, firstCard) -> sprintf "Game %d started with %d players. Top Card is %s" id playerCount (printCard firstCard)
+    | CardPlayed(id, player, card) -> sprintf "Player %d played %s" player (printCard card)
+    | GameDirectionChanged(id, direction) -> sprintf "Game direction changed to %A" direction 
 
 let printCommand (command: Command) =
     match command with
-    | :? StartGame as c -> sprintf "Start game %d with %d players. Top card %s" c.GameId c.PlayerCount (printCard c.FirstCard)
-    | :? PlayCard as e -> sprintf "Player %d plays %s" e.Player (printCard e.Card)
-    | _ -> ""
+    | StartGame(id, playerCount, firstCard) -> sprintf "Start game %d with %d players. Top card %s" id playerCount (printCard firstCard)
+    | PlayCard(id, player, card) -> sprintf "Player %d plays %s" player (printCard card)
 
 let printGiven events =
     printfn "Given"

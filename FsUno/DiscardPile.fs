@@ -26,7 +26,7 @@ let startGame gameId playerCount firstCard state : Event list =
     if playerCount <= 2 then invalidArg "playerCount" "You should be at least 3 players"
     if state.GameAlreadyStarted then invalidOp "You cannot start game twice"
 
-    [{ GameStarted.GameId = gameId; PlayerCount = playerCount; FirstCard = firstCard }]
+    [ GameStarted(gameId, playerCount, firstCard) ]
 
 
 
@@ -50,7 +50,7 @@ let playCard gameId player card state : Event list =
 
     match card, state.TopCard with
     | Digit(n1, color1), Digit(n2, color2) when n1 = n2 || color1 = color2 ->
-        [ {CardPlayed.GameId = gameId; Player = player; Card = card }]
+        [ CardPlayed(gameId, player, card )]
     | _ -> invalidOp "Play same color or same value !"
 
 
@@ -71,21 +71,20 @@ let playCard gameId player card state : Event list =
 
 let apply (state: State) (event: Event) =
     match event with
-    | :? GameStarted as e -> 
+    | GameStarted(id, playerCount, firstCard) -> 
         { state with 
-            GameId = e.GameId 
+            GameId = id
             GameAlreadyStarted = true
-            PlayerCount = e.PlayerCount
+            PlayerCount = playerCount
             CurrentPlayer = 0
-            TopCard = e.FirstCard
+            TopCard = firstCard
         }
-    | :? CardPlayed as e ->
+    | CardPlayed(id, player, card) ->
         { state with
             CurrentPlayer = 
                 (state.CurrentPlayer + 1) % state.PlayerCount
-            TopCard = e.Card
+            TopCard = card
         }
-    | _ -> state
 
 // Replays all events from start to get current state
 
@@ -96,7 +95,6 @@ let replay (events : Event list) =
 
 let handle (command: Command) =
     match command with
-    | :? StartGame as c -> startGame c.GameId c.PlayerCount c.FirstCard
-    | :? PlayCard as c -> playCard c.GameId c.Player c.Card
-    | _ -> invalidArg "command" "This command cannot be processed by discard pile"
+    | StartGame(id, playerCount, firstCard) -> startGame id playerCount firstCard
+    | PlayCard(id, player, card) -> playCard id player card
 
