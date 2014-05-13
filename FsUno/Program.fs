@@ -6,8 +6,7 @@ open FsUno
 [<EntryPoint>]
 let main argv = 
 
-    //let store = new EventStore(new EventHandler())
-    //store.Start()
+    //use store = new EventStore(new EventHandler())
 
     let store = new InMemoryEventStore(new EventHandler())
 
@@ -25,7 +24,5 @@ let main argv =
     
     commandHandler.handle(PlayCard(1, 0, Digit(4, Green)))
 
-    
-    //store.Stop()
 
     0 // return an integer exit code

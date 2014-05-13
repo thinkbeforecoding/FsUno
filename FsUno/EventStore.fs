@@ -86,7 +86,7 @@ open System.Net
 open System.IO
 open System.Reflection
 open EventStore.ClientAPI
-open ServiceStack.Text
+open Newtonsoft.Json
 
 [<CLIMutable>]
 type CardData =
@@ -98,57 +98,37 @@ type CardData =
 
 
 type EventStore (publisher: IPublisher) =
-    let store = EventStoreConnection.Create()
+    let store = 
+        let s = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
+        s.Connect()
+        s
+
+    let serializer = JsonSerializer.Create()
 
     let deserialize (event: ResolvedEvent) =
         let event = event.Event
-        let t = Assembly.GetExecutingAssembly().GetType(event.EventType) 
+        let t = Assembly.GetExecutingAssembly().GetType("Events+Event+" + event.EventType) 
         if t = null then
             None
         else
             use stream = new MemoryStream(event.Data);
-            Some (JsonSerializer.DeserializeFromStream(t, stream) :?> Event)
+            use reader = new StreamReader(stream)
+            Some (serializer.Deserialize(reader, t) :?> Event)
 
     let serialize (event: Event) =
         use stream = new MemoryStream()
-        JsonSerializer.SerializeToStream(event, stream)
-
+        use writer = new StreamWriter(stream)
+        serializer.Serialize(writer, event)
+        writer.Flush()
         EventData(
             Guid.NewGuid(),
-            event.GetType().FullName,
+            event.GetType().Name,
             true,
             stream.ToArray(),
-            null
-        )
+            null )
 
-    
-    member this.Start() =
-        JsConfig<Card>.RawSerializeFn <- fun (c: Card) ->
-            match c with
-            | Digit(n, color) -> JsonSerializer.SerializeToString({Type = "Digit"; Digit= Nullable n; Color= sprintf "%A" color})
-            | KickBack(color) -> JsonSerializer.SerializeToString({ Type = "KickBack"; Color = sprintf "%A" color; Digit = Nullable<int>()})
-       
-        let a = fun text -> 
-                let d = JsonSerializer.DeserializeFromString<CardData>(text)
-                let color = 
-                    match d.Color with
-                    | "Red" -> Red
-                    | "Green" -> Green
-                    | "Blue" -> Blue
-                    | "Yellow" -> Yellow
-                    | _ -> raise (Exception("Unknown color"))
-                match d.Type with
-                | "Digit" -> Digit(d.Digit.Value, color)
-                | "KickBack" -> KickBack(color)
-                | _ -> raise (Exception("Unknown card type"))
-                 
-        JsConfig<Card>.RawDeserializeFn <- new Func<string,Card>(a)
-            
-        store.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
-        
-
-    member this.Stop() =
-        store.Close()
+    interface IDisposable with
+        member this.Dispose() = store.Close()
  
     interface IEventStore with
         member this.GetEvents streamId version =
@@ -167,9 +147,6 @@ type EventStore (publisher: IPublisher) =
             let serializedEvents =
                 newEvents
                 |> Seq.map serialize
-
-            if expectedVersion = 0 then
-                store.CreateStream(streamId, Guid.NewGuid(), true, [||])
 
             store.AppendToStream(streamId, expectedVersion, serializedEvents)
 
