@@ -24,10 +24,7 @@ type IPublisher =
 
 
 
-type Stream =
-    {
-        mutable Events:  (Event * int) list
-    }
+type Stream = { mutable Events:  (Event * int) list }
 
 type InMemoryEventStore(publisher: IPublisher) =
     let mutable streams = Map.empty
@@ -88,15 +85,6 @@ open System.Reflection
 open EventStore.ClientAPI
 open Newtonsoft.Json
 
-[<CLIMutable>]
-type CardData =
-    {
-        Type: string
-        Digit: Nullable<int>
-        Color: string
-    }
-
-
 type EventStore (publisher: IPublisher) =
     let store = 
         let s = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
@@ -144,11 +132,8 @@ type EventStore (publisher: IPublisher) =
             |> Seq.toList
 
         member this.SaveEvents streamId expectedVersion newEvents =
-            let serializedEvents =
-                newEvents
-                |> Seq.map serialize
+            let serializedEvents = Seq.map serialize newEvents
 
             store.AppendToStream(streamId, expectedVersion, serializedEvents)
 
-            newEvents
-            |> List.iter publisher.Publish
+            List.iter publisher.Publish newEvents

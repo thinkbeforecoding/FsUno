@@ -1,28 +1,23 @@
 ﻿[<AutoOpen>]
 module DiscardPile
 
-type State =
-    {
-        GameId: GameId
-        GameAlreadyStarted: bool
-        PlayerCount: int
-        CurrentPlayer: int
-        TopCard: Card
-    }
+type State = {
+    GameId: GameId
+    GameAlreadyStarted: bool
+    PlayerCount: int
+    CurrentPlayer: int
+    TopCard: Card }
 
-let empty =
-    {
-        State.GameId = 0
-        GameAlreadyStarted = false
-        PlayerCount = 0
-        CurrentPlayer = 0
-        TopCard = Digit(0,Red)
-    }
-
+let empty = {
+    State.GameId = 0
+    GameAlreadyStarted = false
+    PlayerCount = 0
+    CurrentPlayer = 0
+    TopCard = Digit(0,Red) }
 
 // Operations on the DiscardPile aggregate
 
-let startGame gameId playerCount firstCard state : Event list =
+let startGame gameId playerCount firstCard state =
     if playerCount <= 2 then invalidArg "playerCount" "You should be at least 3 players"
     if state.GameAlreadyStarted then invalidOp "You cannot start game twice"
 
@@ -45,7 +40,7 @@ let startGame gameId playerCount firstCard state : Event list =
 
 
 
-let playCard gameId player card state : Event list =
+let playCard gameId player card state =
     if player <> state.CurrentPlayer then invalidOp "Player should play at his turn"
 
     match card, state.TopCard with
@@ -69,7 +64,7 @@ let playCard gameId player card state : Event list =
 
 // Applies state changes for events
 
-let apply (state: State) (event: Event) =
+let apply state event =
     match event with
     | GameStarted(id, playerCount, firstCard) -> 
         { state with 
@@ -86,12 +81,11 @@ let apply (state: State) (event: Event) =
 
 // Replays all events from start to get current state
 
-let replay (events : Event list) =
-    List.fold apply empty events
+let replay events = List.fold apply empty events
 
 // Map commands to aggregates operations
 
-let handle (command: Command) =
+let handle command =
     match command with
     | StartGame(id, playerCount, firstCard) -> startGame id playerCount firstCard
     | PlayCard(id, player, card) -> playCard id player card

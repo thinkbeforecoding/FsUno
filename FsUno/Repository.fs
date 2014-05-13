@@ -17,7 +17,6 @@ type DiscardPileRepository(store: IEventStore) =
 
     let streamId gameId = sprintf "DiscardPile%d" gameId 
 
-
     member this.GetById gameId =
         store.GetEvents (streamId gameId) 0
         |> List.foldi apply empty
@@ -26,7 +25,3 @@ type DiscardPileRepository(store: IEventStore) =
     member this.Save gameId expectedVersion events =
         store.SaveEvents (streamId gameId) expectedVersion events
         
-
-
-
-
