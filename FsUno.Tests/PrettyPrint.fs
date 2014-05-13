@@ -4,12 +4,12 @@ module PrettyPrint
 let printCard =
     function
     | Digit(n, color) -> sprintf "%A %d" color n
+    | KickBack(color) -> sprintf "%A Kickback" color
     
 let printEvent (event: Event) =
     match event with
     | GameStarted(id, playerCount, firstCard) -> sprintf "Game %d started with %d players. Top Card is %s" id playerCount (printCard firstCard)
     | CardPlayed(id, player, card) -> sprintf "Player %d played %s" player (printCard card)
-    | GameDirectionChanged(id, direction) -> sprintf "Game direction changed to %A" direction 
 
 let printCommand (command: Command) =
     match command with

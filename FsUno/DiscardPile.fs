@@ -77,14 +77,12 @@ let apply (state: State) (event: Event) =
             GameAlreadyStarted = true
             PlayerCount = playerCount
             CurrentPlayer = 0
-            TopCard = firstCard
-        }
+            TopCard = firstCard }
     | CardPlayed(id, player, card) ->
         { state with
             CurrentPlayer = 
                 (state.CurrentPlayer + 1) % state.PlayerCount
-            TopCard = card
-        }
+            TopCard = card }
 
 // Replays all events from start to get current state
 

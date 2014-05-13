@@ -10,7 +10,6 @@ type EventHandler() =
             match card with
             | Digit(_, c) -> Some c
             | KickBack c -> Some c
-            | _ -> None
             |> function
                | Some Red -> ConsoleColor.Red
                | Some Green -> ConsoleColor.Green
@@ -31,7 +30,5 @@ type EventHandler() =
                 turnCount <- turnCount + 1
                 setColor card
                 printfn "[%d] Player %d played %A" turnCount player card
-            | GameDirectionChanged(id, direction) ->
-                printfn "    Game direction changed: %A" direction
 
 

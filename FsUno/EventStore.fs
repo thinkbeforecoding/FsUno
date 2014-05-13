@@ -127,7 +127,6 @@ type EventStore (publisher: IPublisher) =
             match c with
             | Digit(n, color) -> JsonSerializer.SerializeToString({Type = "Digit"; Digit= Nullable n; Color= sprintf "%A" color})
             | KickBack(color) -> JsonSerializer.SerializeToString({ Type = "KickBack"; Color = sprintf "%A" color; Digit = Nullable<int>()})
-            | _ -> "{}"
        
         let a = fun text -> 
                 let d = JsonSerializer.DeserializeFromString<CardData>(text)
