@@ -54,13 +54,11 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
-    <Compile Include="Operators.fs" />
     <Compile Include="Deck.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Events.fs" />
     <Compile Include="DiscardPile.fs" />
     <Compile Include="EventStore.fs" />
-    <Compile Include="Repository.fs" />
     <Compile Include="CommandHandler.fs" />
     <Compile Include="EventHandler.fs" />
     <Compile Include="Program.fs" />

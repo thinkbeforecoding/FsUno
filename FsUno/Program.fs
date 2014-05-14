@@ -10,19 +10,21 @@ let main argv =
 
     let store = new InMemoryEventStore(new EventHandler())
 
-    let commandHandler = new DiscardPileCommandHandler(store)
+    let handle = DiscardPileCommandHandler.create store
 
-    commandHandler.handle(StartGame(1, 4, Digit(3, Red)))
+    handle(StartGame(1, 4, Digit(3, Red)))
     
-    commandHandler.handle(PlayCard(1, 0, Digit(3, Blue)))
+    handle(PlayCard(1, 0, Digit(3, Blue)))
 
-    commandHandler.handle(PlayCard(1, 1, Digit(8, Blue)))
+    handle(PlayCard(1, 1, Digit(8, Blue)))
     
-    commandHandler.handle(PlayCard(1, 2, Digit(8, Yellow)))
+    handle(PlayCard(1, 2, Digit(8, Yellow)))
     
-    commandHandler.handle(PlayCard(1, 3, Digit(4, Yellow)))
+    handle(PlayCard(1, 3, Digit(4, Yellow)))
     
-    commandHandler.handle(PlayCard(1, 0, Digit(4, Green)))
+    handle(PlayCard(1, 0, Digit(4, Green)))
 
+
+    System.Console.ReadLine() |> ignore
 
     0 // return an integer exit code

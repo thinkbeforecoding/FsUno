@@ -3,7 +3,7 @@
 exception WrongExpectedVersion
 
 type IEventStore =
-    abstract member GetEvents : streamId: string -> version: int -> Event option list
+    abstract member FoldEvents : fold: ('T -> Event -> 'T) -> seed: 'T -> streamId: string -> version: int -> int * 'T
     abstract member SaveEvents : streamId: string -> expectedVersion: int -> events: Event list -> unit
 
 type IPublisher =
@@ -30,17 +30,17 @@ type InMemoryEventStore(publisher: IPublisher) =
     let mutable streams = Map.empty
 
     interface IEventStore with
-        member this.GetEvents streamId version =
+        member this.FoldEvents fold seed streamId version =
             match streams.TryFind streamId with
             | Some(stream) -> 
                 seq { 
                     for event, eventVersion in stream.Events do
                     if eventVersion >= version then
-                        yield Some event }
+                        yield eventVersion, event }
                 |> Seq.toList 
                 |> List.rev
-            
-            | None -> []
+                |> Seq.fold (fun (_,s) (v,e) -> v, fold s e) (-1, seed)
+            | None -> -1, seed
 
         member this.SaveEvents streamId expectedVersion newEvents =
             let eventsWithVersion =
@@ -101,7 +101,7 @@ type EventStore (publisher: IPublisher) =
         else
             use stream = new MemoryStream(event.Data);
             use reader = new StreamReader(stream)
-            Some (serializer.Deserialize(reader, t) :?> Event)
+            Some (event.EventNumber, serializer.Deserialize(reader, t) :?> Event)
 
     let serialize (event: Event) =
         use stream = new MemoryStream()
@@ -119,7 +119,7 @@ type EventStore (publisher: IPublisher) =
         member this.Dispose() = store.Close()
  
     interface IEventStore with
-        member this.GetEvents streamId version =
+        member this.FoldEvents fold seed streamId version =
             let rec getEvents position = 
                 seq {
                     let slice = store.ReadStreamEventsForward(streamId, position, 500, true)
@@ -128,8 +128,9 @@ type EventStore (publisher: IPublisher) =
                         yield! getEvents slice.NextEventNumber
                 }
             getEvents version
-            |> Seq.map deserialize
-            |> Seq.toList
+            |> Seq.choose deserialize
+            |> Seq.fold (fun (_,s) (v,e) -> v, fold s e) (0,seed)
+
 
         member this.SaveEvents streamId expectedVersion newEvents =
             let serializedEvents = Seq.map serialize newEvents
