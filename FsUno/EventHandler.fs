@@ -17,18 +17,17 @@ type EventHandler() =
                | Some Yellow -> ConsoleColor.Yellow
                | None -> ConsoleColor.White
         Console.ForegroundColor <- color
+    
+    member this.Handle =
+        function
+        | GameStarted(id, playerCount, firstCard) ->
+            printfn "Game %d started with %d players" id playerCount
+            setColor firstCard
+            printfn "First card: %A" firstCard
 
-    interface IPublisher with
-
-        member this.Publish event =
-            match event with
-            | GameStarted(id, playerCount, firstCard) ->
-                printfn "Game %d started with %d players" id playerCount
-                printfn "First card: %A" firstCard
-
-            | CardPlayed(id, player, card) ->
-                turnCount <- turnCount + 1
-                setColor card
-                printfn "[%d] Player %d played %A" turnCount player card
+        | CardPlayed(id, player, card) ->
+            turnCount <- turnCount + 1
+            setColor card
+            printfn "[%d] Player %d played %A" turnCount player card
 
 

@@ -64,8 +64,8 @@ let playCard gameId player card state =
 
 // Applies state changes for events
 
-let apply state event =
-    match event with
+let apply state =
+    function
     | GameStarted(id, playerCount, firstCard) -> 
         { state with 
             GameId = id
@@ -73,6 +73,7 @@ let apply state event =
             PlayerCount = playerCount
             CurrentPlayer = 0
             TopCard = firstCard }
+
     | CardPlayed(id, player, card) ->
         { state with
             CurrentPlayer = 
@@ -85,8 +86,8 @@ let replay events = List.fold apply empty events
 
 // Map commands to aggregates operations
 
-let handle command =
-    match command with
+let handle =
+    function
     | StartGame(id, playerCount, firstCard) -> startGame id playerCount firstCard
     | PlayCard(id, player, card) -> playCard id player card
 

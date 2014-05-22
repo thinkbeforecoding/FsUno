@@ -1,64 +1,59 @@
 ﻿namespace FsUno
 
+open System
+
 exception WrongExpectedVersion
 
-type IEventStore =
-    abstract member FoldEvents : fold: ('T -> Event -> 'T) -> seed: 'T -> streamId: string -> version: int -> int * 'T
-    abstract member SaveEvents : streamId: string -> expectedVersion: int -> events: Event list -> unit
 
-type IPublisher =
-    abstract member Publish : event: Event -> unit
+module InMemoryEventStore =
+    type Stream = { mutable Events:  (Event * int) list }
+        with
+        static member version stream = 
+            stream.Events
+            |> Seq.last
+            |> snd
+    
 
+    type InMemoryEventStore = 
+        { mutable streams : Map<string,Stream> }
+        interface IDisposable
+            with member x.Dispose() = ()         
 
+    let create() = { streams = Map.empty }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-type Stream = { mutable Events:  (Event * int) list }
-
-type InMemoryEventStore(publisher: IPublisher) =
-    let mutable streams = Map.empty
-
-    interface IEventStore with
-        member this.FoldEvents fold seed streamId version =
-            match streams.TryFind streamId with
-            | Some(stream) -> 
-                seq { 
-                    for event, eventVersion in stream.Events do
-                    if eventVersion >= version then
-                        yield eventVersion, event }
+    let readStream store streamId version count =
+        match store.streams.TryFind streamId with
+        | Some(stream) -> 
+            let events =
+                stream.Events
+                |> Seq.skipWhile (fun (_,v) -> v < version )
+                |> Seq.takeWhile (fun (_,v) -> v <= version + count)
                 |> Seq.toList 
-                |> List.rev
-                |> Seq.fold (fun (_,s) (v,e) -> v, fold s e) (-1, seed)
-            | None -> -1, seed
-
-        member this.SaveEvents streamId expectedVersion newEvents =
-            let eventsWithVersion =
-                newEvents
-                |> List.mapi (fun index event -> (event, expectedVersion + index + 1))
-
-            match streams.TryFind streamId with
-            | Some({Events = (event, eventVersion) :: _} as stream) 
-              when eventVersion = expectedVersion-> 
-                stream.Events <- eventsWithVersion @ stream.Events
+            let lastEventNumber = events |> Seq.last |> snd 
             
-            | None when expectedVersion = -1 -> 
-                streams <- streams.Add(streamId, { Events = eventsWithVersion })        
-
-            | _ -> raise WrongExpectedVersion 
+            events |> List.map fst,
+                lastEventNumber ,
+                if lastEventNumber < version + count 
+                then None 
+                else Some (lastEventNumber+1)
             
+        | None -> [], -1, None
+
+    let appendToStream store streamId expectedVersion newEvents =
+        let eventsWithVersion =
             newEvents
-            |> List.iter publisher.Publish
+            |> List.mapi (fun index event -> (event, expectedVersion + index + 1))
+
+        match store.streams.TryFind streamId with
+        | Some stream when Stream.version stream = expectedVersion -> 
+            stream.Events <- stream.Events @ eventsWithVersion
+        
+        | None when expectedVersion = -1 -> 
+            store.streams <- store.streams.Add(streamId, { Events = eventsWithVersion })        
+
+        | _ -> raise WrongExpectedVersion 
+        
+        newEvents
 
 
 
@@ -73,20 +68,15 @@ type InMemoryEventStore(publisher: IPublisher) =
 
 
 
+module EventStore =
+    open System
+    open System.Net
+    open System.IO
+    open System.Reflection
+    open EventStore.ClientAPI
+    open Newtonsoft.Json
 
-
-
-
-
-open System
-open System.Net
-open System.IO
-open System.Reflection
-open EventStore.ClientAPI
-open Newtonsoft.Json
-
-type EventStore (publisher: IPublisher) =
-    let store = 
+    let create() = 
         let s = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
         s.Connect()
         s
@@ -101,7 +91,7 @@ type EventStore (publisher: IPublisher) =
         else
             use stream = new MemoryStream(event.Data);
             use reader = new StreamReader(stream)
-            Some (event.EventNumber, serializer.Deserialize(reader, t) :?> Event)
+            Some (serializer.Deserialize(reader, t) :?> Event)
 
     let serialize (event: Event) =
         use stream = new MemoryStream()
@@ -115,26 +105,25 @@ type EventStore (publisher: IPublisher) =
             stream.ToArray(),
             null )
 
-    interface IDisposable with
-        member this.Dispose() = store.Close()
  
-    interface IEventStore with
-        member this.FoldEvents fold seed streamId version =
-            let rec getEvents position = 
-                seq {
-                    let slice = store.ReadStreamEventsForward(streamId, position, 500, true)
-                    yield! slice.Events
-                    if not slice.IsEndOfStream then
-                        yield! getEvents slice.NextEventNumber
-                }
-            getEvents version
-            |> Seq.choose deserialize
-            |> Seq.fold (fun (_,s) (v,e) -> v, fold s e) (0,seed)
+    let readStream (store: IEventStoreConnection) streamId version count =
+        let slice = store.ReadStreamEventsForward(streamId, version, 500, true)
 
+        let events = 
+            slice.Events 
+            |> Seq.choose deserialize 
+            |> Seq.toList
+        
+        let nextEventNumber = 
+            if slice.IsEndOfStream 
+            then None 
+            else Some slice.NextEventNumber
 
-        member this.SaveEvents streamId expectedVersion newEvents =
-            let serializedEvents = Seq.map serialize newEvents
+        events, slice.LastEventNumber, nextEventNumber   
 
-            store.AppendToStream(streamId, expectedVersion, serializedEvents)
+    let appendToStream (store: IEventStoreConnection) streamId expectedVersion newEvents =
+        let serializedEvents = Seq.map serialize newEvents
 
-            List.iter publisher.Publish newEvents
+        store.AppendToStream(streamId, expectedVersion, serializedEvents)
+
+        newEvents
