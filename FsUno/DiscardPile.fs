@@ -1,18 +1,42 @@
 ﻿[<AutoOpen>]
 module DiscardPile
 
+// A type representing current player turn
+// All operation should be done inside the module
+
+type Turn = (*player*)int * (*playerCount*)int
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Turn =
+    let empty = (0,1)
+    let start count = (0, count)
+    let next (player, count) = (player + 1) % count, count
+    let isNot p (current, _) = p <> current
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
 type State = {
     GameId: GameId
     GameAlreadyStarted: bool
-    PlayerCount: int
-    CurrentPlayer: int
+    Player: Turn
     TopCard: Card }
 
 let empty = {
     State.GameId = 0
     GameAlreadyStarted = false
-    PlayerCount = 0
-    CurrentPlayer = 0
+    Player = Turn.empty
     TopCard = Digit(0,Red) }
 
 // Operations on the DiscardPile aggregate
@@ -41,7 +65,7 @@ let startGame gameId playerCount firstCard state =
 
 
 let playCard gameId player card state =
-    if player <> state.CurrentPlayer then invalidOp "Player should play at his turn"
+    if state.Player |> Turn.isNot player then invalidOp "Player should play at his turn"
 
     match card, state.TopCard with
     | Digit(n1, color1), Digit(n2, color2) when n1 = n2 || color1 = color2 ->
@@ -62,22 +86,38 @@ let playCard gameId player card state =
 
 
 
+
+let handle =
+    function
+    | StartGame(id, playerCount, firstCard) -> startGame id playerCount firstCard
+    | PlayCard(id, player, card) -> playCard id player card
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Applies state changes for events
 
 let apply state =
     function
     | GameStarted(id, playerCount, firstCard) -> 
-        { state with 
-            GameId = id
-            GameAlreadyStarted = true
-            PlayerCount = playerCount
-            CurrentPlayer = 0
-            TopCard = firstCard }
+        { GameId = id
+          GameAlreadyStarted = true
+          Player = Turn.start playerCount
+          TopCard = firstCard }
 
     | CardPlayed(id, player, card) ->
         { state with
-            CurrentPlayer = 
-                (state.CurrentPlayer + 1) % state.PlayerCount
+            Player = state.Player |> Turn.next 
             TopCard = card }
 
 // Replays all events from start to get current state
@@ -85,9 +125,4 @@ let apply state =
 let replay events = List.fold apply empty events
 
 // Map commands to aggregates operations
-
-let handle =
-    function
-    | StartGame(id, playerCount, firstCard) -> startGame id playerCount firstCard
-    | PlayCard(id, player, card) -> playCard id player card
 
