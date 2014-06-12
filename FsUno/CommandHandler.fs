@@ -8,7 +8,7 @@ let create readStream appendToStream =
     let streamId gameId = sprintf "DiscardPile-%d" gameId 
     let load gameId =
         let rec fold state version =
-            let events, lastEvent, nextEvent = readStream (streamId gameId) 0 500
+            let events, lastEvent, nextEvent = readStream (streamId gameId) version 500
             let state = List.fold apply state events
             match nextEvent with
             | None -> lastEvent, state
@@ -17,12 +17,13 @@ let create readStream appendToStream =
 
     let save gameId expectedVersion events = appendToStream (streamId gameId) expectedVersion events
 
-    let handle' c v s  = v, handle c s
+    // the /|> operator works on a pair. It applies the function on the second element.
+    let inline (/|>) (v,s) f = v, f s    
 
     fun command ->
         let id = gameId command
 
         load id
-        ||> handle' command
+        /|> handle command
         ||> save id
         
