@@ -10,8 +10,8 @@ type Color =
     | Yellow
 
 type Card =
-    | Digit of int * Color
-    | KickBack of Color
+    | Digit of Value:int * Color:Color
+    | KickBack of Color: Color
 
 type Direction =
     | ClockWise

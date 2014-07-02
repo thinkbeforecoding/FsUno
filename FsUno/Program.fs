@@ -1,21 +1,25 @@
-﻿// Learn more about F# at http://fsharp.net
-// See the 'F# Tutorial' project for more help.
+﻿open FsUno
+open CommandHandlers
 
-open FsUno
-open InMemoryEventStore
+open ToyInMemoryEventStore
+
+// uncomment to use async agent version (against the event store)
+//open Async 
+
+// uncomment to use the EventStore 
 //open EventStore
+
 
 [<EntryPoint>]
 let main argv = 
-
-    use store = create()
-
+    
     let eventHandler = new EventHandler()
+    use store = 
+        create()
+        |> subscribe eventHandler.Handle
 
-    let handle command = 
-        command
-        |> DiscardPileCommandHandler.create (readStream store) (appendToStream store)
-        |> Seq.iter eventHandler.Handle
+
+    let handle = DiscardPile.create (readStream store) (appendToStream store)
 
     handle (StartGame(1, 4, Digit(3, Red)))
     

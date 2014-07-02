@@ -58,9 +58,10 @@
     <Compile Include="Commands.fs" />
     <Compile Include="Events.fs" />
     <Compile Include="DiscardPile.fs" />
-    <Compile Include="EventStore.fs" />
     <Compile Include="CommandHandler.fs" />
     <Compile Include="EventHandler.fs" />
+    <Compile Include="Serialization.fs" />
+    <Compile Include="EventStore.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <None Include="packages.config" />
