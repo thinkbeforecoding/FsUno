@@ -1,45 +1,25 @@
-﻿[<TestFixture>]
-module FsUno.Tests.``When playing card``
+﻿module FsUno.Tests.``When playing card``
 
 open System
+open Swensen.Unquote
+open Xunit
 
-[<Test>]
-let ``Same color should be accepted``() =
-    Given [ GameStarted(1, 4, Digit(3, Red)) ]
-    |> When ( PlayCard(1, 0, Digit(9, Red)) )
-    |> Expect [ CardPlayed(1, 0, Digit(9, Red)) ]
+let [<Fact>] ``Same color should be accepted`` () =
+    <@ replay [ GameStarted(1, 4, Digit(3, Red)) ]
+    |> handle ( PlayCard(1, 0, Digit(9, Red)) ) 
+    =[ CardPlayed(1, 0, Digit(9, Red)) ] @> |> test
 
+let [<Fact>] ``Same value should be accepted`` () =
+    <@ replay [ GameStarted(1, 4, Digit(3, Red)) ]
+    |> handle ( PlayCard(1, 0, Digit(3, Yellow)) )
+    =[ CardPlayed(1, 0, Digit(3, Yellow)) ] @> |> test
 
+let [<Fact>] ``Different value and color should be rejected`` () =
+    <@ replay [ GameStarted(1, 4, Digit(3, Red)) ]
+    |> handle ( PlayCard(1, 0, Digit(8, Yellow)) ) @>
+    |> raises<InvalidOperationException>
 
-
-
-
-
-
-
-
-
-
-
-
-
-[<Test>]
-let ``Same value should be accepted``() =
-    Given [ GameStarted(1, 4, Digit(3, Red)) ]
-    |> When ( PlayCard(1, 0, Digit(3, Yellow)) )
-    |> Expect [ CardPlayed(1, 0, Digit(3, Yellow)) ]
-
-
-
-
-[<Test>]
-let ``Different value and color should be rejected``() =
-    Given [ GameStarted(1, 4, Digit(3, Red)) ]
-    |> When ( PlayCard(1, 0, Digit(8, Yellow)) )
-    |> ExpectThrows<InvalidOperationException>
-
-[<Test>]
-let ``First player should play at his turn``() =
-    Given [ GameStarted(1, 4, Digit(3, Red)) ]
-    |> When ( PlayCard(1, 2, Digit(3, Green)) )
-    |> ExpectThrows<InvalidOperationException>
+let [<Fact>] ``First player should play at his turn``() =
+    <@ replay [ GameStarted(1, 4, Digit(3, Red)) ]
+    |> handle ( PlayCard(1, 2, Digit(3, Green)) ) @>
+    |> raises<InvalidOperationException>
