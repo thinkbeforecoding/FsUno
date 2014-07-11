@@ -125,10 +125,6 @@ let private unionConverter =
 // but doesn't serialize the case. It is intended to be
 // stored in the EventType of the event store.
 let private rootUnionConverter<'a> (case: UnionCaseInfo) =
-    let fieldMap = 
-        case.GetFields()
-        |> Array.mapi (fun i c -> c.Name, (i,c.PropertyType))
-        |> Map.ofArray    
     { new JsonConverter() with
         member this.WriteJson(w,v,s) =
             match unionValues v with
@@ -146,25 +142,24 @@ let private rootUnionConverter<'a> (case: UnionCaseInfo) =
 // This converter writes options as value or null
 let private optionConverter =
     { new JsonConverter() with
-                member this.WriteJson(w,v,s) = 
-                    match FSharpValue.GetUnionFields(v,v.GetType()) with
-                    | _, [|v|] -> s.Serialize(w, v)
-                    | _ -> w.WriteNull()
+        member this.WriteJson(w,v,s) = 
+            match FSharpValue.GetUnionFields(v,v.GetType()) with
+            | _, [|v|] -> s.Serialize(w, v)
+            | _ -> w.WriteNull()
 
-                member this.ReadJson(r,t,v,s) =
-                    let optionType =
-                        match t.GetGenericArguments() with
-                        | [|o|] -> o
-                        | _ -> failwith "Option should have a single generic argument"
-                    let cases = FSharpType.GetUnionCases(t)
-                    
-                    if r.TokenType = JsonToken.Null then
-                        FSharpValue.MakeUnion(cases.[0], null)
-                    else
-                        FSharpValue.MakeUnion(cases.[1], [| s.Deserialize(r,optionType) |])
-                    
-                                        
-                member this.CanConvert t = isOption t }
+        member this.ReadJson(r,t,v,s) =
+            let optionType =
+                match t.GetGenericArguments() with
+                | [|o|] -> o
+                | _ -> failwith "Option should have a single generic argument"
+            let cases = FSharpType.GetUnionCases(t)
+            
+            if r.TokenType = JsonToken.Null then
+                FSharpValue.MakeUnion(cases.[0], null)
+            else
+                FSharpValue.MakeUnion(cases.[1], [| s.Deserialize(r,optionType) |])
+                                
+        member this.CanConvert t = isOption t }
 
 let deserializeUnion<'a> eventType data = 
     FSharpType.GetUnionCases(typeof<'a>)

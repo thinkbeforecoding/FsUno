@@ -4,14 +4,14 @@ open CommandHandlers
 open ToyInMemoryEventStore
 
 // uncomment to use async agent version (against the event store)
-//open Async 
+// open Async 
 
 // uncomment to use the EventStore 
-//open EventStore
+// open EventStore
 
 
 [<EntryPoint>]
-let main argv = 
+let main _ = 
     
     let eventHandler = new EventHandler()
     use store = 

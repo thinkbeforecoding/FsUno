@@ -28,13 +28,11 @@ module Turn =
     
 
 type State = {
-    GameId: GameId
     GameAlreadyStarted: bool
     Player: Turn
     TopCard: Card }
 
 let empty = {
-    State.GameId = 0
     GameAlreadyStarted = false
     Player = Turn.empty
     TopCard = Digit(0,Red) }
@@ -86,6 +84,7 @@ let playCard gameId player card state =
 
 
 
+// Map commands to aggregates operations
 
 let handle =
     function
@@ -109,13 +108,12 @@ let handle =
 
 let apply state =
     function
-    | GameStarted(id, playerCount, firstCard) -> 
-        { GameId = id
-          GameAlreadyStarted = true
+    | GameStarted(_, playerCount, firstCard) -> 
+        { GameAlreadyStarted = true
           Player = Turn.start playerCount
           TopCard = firstCard }
 
-    | CardPlayed(id, player, card) ->
+    | CardPlayed(_, _, card) ->
         { state with
             Player = state.Player |> Turn.next 
             TopCard = card }
@@ -124,5 +122,4 @@ let apply state =
 
 let replay events = List.fold apply empty events
 
-// Map commands to aggregates operations
 

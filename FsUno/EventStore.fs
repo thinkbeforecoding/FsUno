@@ -96,7 +96,7 @@ module EventStore =
         store
 
     let readStream (store: IEventStoreConnection) streamId version count =
-        let slice = store.ReadStreamEventsForward(streamId, version, 500, true)
+        let slice = store.ReadStreamEventsForward(streamId, version, count, true)
 
         let events = 
             slice.Events 
@@ -160,7 +160,7 @@ module Async =
         
         let readStream (store: IEventStoreConnection) streamId version count = 
             async {
-                let! slice = store.AsyncReadStreamEventsForward streamId version 500 true
+                let! slice = store.AsyncReadStreamEventsForward streamId version count true
 
                 let events = 
                     slice.Events 
