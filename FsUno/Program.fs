@@ -19,7 +19,7 @@ let main _ =
         |> subscribe eventHandler.Handle
 
 
-    let handle = DiscardPile.create (readStream store) (appendToStream store)
+    let handle = Game.create (readStream store) (appendToStream store)
 
     handle (StartGame(1, 4, Digit(3, Red)))
     

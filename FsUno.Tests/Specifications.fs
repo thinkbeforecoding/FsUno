@@ -3,6 +3,7 @@ module Specifications
 
 open NUnit.Framework
 open FsUnit
+open Game
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command

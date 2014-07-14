@@ -20,12 +20,12 @@ type EventHandler() =
     
     member this.Handle =
         function
-        | GameStarted(id, playerCount, firstCard) ->
-            printfn "Game %d started with %d players" id playerCount
+        | GameStarted(gameId, playerCount, firstCard) ->
+            printfn "Game %d started with %d players" gameId playerCount
             setColor firstCard
             printfn "First card: %A" firstCard
 
-        | CardPlayed(id, player, card) ->
+        | CardPlayed(gameId, player, card) ->
             turnCount <- turnCount + 1
             setColor card
             printfn "[%d] Player %d played %A" turnCount player card

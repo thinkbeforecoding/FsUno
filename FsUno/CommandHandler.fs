@@ -1,17 +1,17 @@
 ﻿module FsUno.CommandHandlers
 
-open DiscardPile
+open Game
 
 // The discard pile command handler is the link
 // between the command, the event store and the aggregate
 // This version loads the aggregate from scratch for each command
 // This is usually ok for aggregates with a small number of events
-module DiscardPile =
+module Game =
 
     let create readStream appendToStream =
 
         // this is the "repository"
-        let streamId gameId = sprintf "DiscardPile-%d" gameId 
+        let streamId gameId = sprintf "Game-%d" gameId 
         let load gameId =
             let rec fold state version =
                 let events, lastEvent, nextEvent = readStream (streamId gameId) version 500
@@ -43,12 +43,13 @@ module DiscardPile =
 // then simply maintain state and save new events to the store.
 // This is usually ok for aggregates with a small number of events
 module Async =
-    module DiscardPile =
+    module Game =
+
         type Agent<'T> = MailboxProcessor<'T>
         let create readStream appendToStream =
 
             // this is the "repository"
-            let streamId gameId = sprintf "DiscardPile-%d" gameId 
+            let streamId gameId = sprintf "Game-%d" gameId 
             let load gameId =
                 let rec fold state version =
                     async {
