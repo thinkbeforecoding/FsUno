@@ -1,9 +1,9 @@
-﻿[<TestFixture>]
-module FsUno.Tests.``When playing card``
+﻿module FsUno.Tests.``When playing card``
 
+open Xunit
 open System
 
-[<Test>]
+[<Fact>]
 let ``Same color should be accepted``() =
     Given [ GameStarted(1, 4, Digit(3, Red)) ]
     |> When ( PlayCard(1, 0, Digit(9, Red)) )
@@ -23,7 +23,7 @@ let ``Same color should be accepted``() =
 
 
 
-[<Test>]
+[<Fact>]
 let ``Same value should be accepted``() =
     Given [ GameStarted(1, 4, Digit(3, Red)) ]
     |> When ( PlayCard(1, 0, Digit(3, Yellow)) )
@@ -32,13 +32,13 @@ let ``Same value should be accepted``() =
 
 
 
-[<Test>]
+[<Fact>]
 let ``Different value and color should be rejected``() =
     Given [ GameStarted(1, 4, Digit(3, Red)) ]
     |> When ( PlayCard(1, 0, Digit(8, Yellow)) )
     |> ExpectThrows<InvalidOperationException>
 
-[<Test>]
+[<Fact>]
 let ``First player should play at his turn``() =
     Given [ GameStarted(1, 4, Digit(3, Red)) ]
     |> When ( PlayCard(1, 2, Digit(3, Green)) )

@@ -1,8 +1,7 @@
 ﻿[<AutoOpen>]
 module Specifications
 
-open NUnit.Framework
-open FsUnit
+open FsUnit.Xunit
 open Game
 
 let Given (events: Event list) = events
