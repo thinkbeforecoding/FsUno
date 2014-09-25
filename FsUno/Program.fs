@@ -1,13 +1,13 @@
 ﻿open FsUno
 open CommandHandlers
 
-open ToyInMemoryEventStore
+//open ToyInMemoryEventStore
 
 // uncomment to use async agent version (against the event store)
 // open Async 
 
 // uncomment to use the EventStore 
-// open EventStore
+ open EventStore
 
 
 [<EntryPoint>]
@@ -21,17 +21,17 @@ let main _ =
 
     let handle = Game.create (readStream store) (appendToStream store)
 
-    handle (StartGame(1, 4, Digit(3, Red)))
+    handle (StartGame { GameId = GameId 1; PlayerCount = 4; FirstCard = Digit(3, Red)})
     
-    handle (PlayCard(1, 0, Digit(3, Blue)))
+    handle (PlayCard { GameId = GameId 1; Player = 0; Card = Digit(3, Blue)})
 
-    handle (PlayCard(1, 1, Digit(8, Blue)))
+    handle (PlayCard { GameId = GameId 1; Player = 1; Card = Digit(8, Blue)})
     
-    handle (PlayCard(1, 2, Digit(8, Yellow)))
+    handle (PlayCard { GameId = GameId 1; Player =  2; Card = Digit(8, Yellow)})
     
-    handle (PlayCard(1, 3, Digit(4, Yellow)))
+    handle (PlayCard { GameId = GameId 1; Player = 3; Card = Digit(4, Yellow)})
     
-    handle (PlayCard(1, 0, Digit(4, Green)))
+    handle (PlayCard { GameId = GameId 1; Player = 0; Card = Digit(4, Green)})
 
 
     System.Console.ReadLine() |> ignore

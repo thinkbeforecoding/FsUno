@@ -11,7 +11,8 @@ let Expect (expected: Event list) (events, command) =
     printWhen command
     printExpect expected
 
-    replay events
+    events
+    |> List.fold evolve State.initial
     |> handle command
     |> should equal expected
 
@@ -22,7 +23,8 @@ let ExpectThrows<'Ex> (events, command) =
 
 
     (fun () ->
-        replay events
+        events
+        |> List.fold evolve State.initial
         |> handle command
         |> ignore)
     |> should throw typeof<'Ex>

@@ -1,7 +1,7 @@
 ﻿[<AutoOpen>]
 module Deck
 
-type GameId = int
+type GameId = GameId of int
 
 type Color = 
     | Red

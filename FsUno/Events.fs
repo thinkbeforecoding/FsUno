@@ -2,6 +2,16 @@
 module Events
 
 type Event =
-    | GameStarted of GameId: GameId * PlayerCount: int * FirstCard: Card
-    | CardPlayed of GameId: GameId * Player: int * Card: Card
+    | GameStarted of GameStarted 
+    | CardPlayed of CardPlayed 
 
+and GameStarted = {
+    GameId: GameId
+    PlayerCount: int
+    FirstCard: Card }
+
+and CardPlayed = {
+    GameId: GameId
+    Player: int
+    Card: Card }
+ 

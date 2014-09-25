@@ -2,10 +2,16 @@
 module Commands
 
 type Command =
-    | StartGame of GameId: GameId * PlayerCount: int * FirstCard: Card
-    | PlayCard of GameId: GameId * Player: int * Card: Card
+    | StartGame of StartGame
+    | PlayCard of PlayCard 
 
-let gameId =
-    function
-    | StartGame(id, _, _) -> id
-    | PlayCard(id, _, _) -> id
+and StartGame = {
+    GameId: GameId
+    PlayerCount: int
+    FirstCard: Card }
+
+and PlayCard = {
+    GameId: GameId
+    Player: int
+    Card: Card }
+

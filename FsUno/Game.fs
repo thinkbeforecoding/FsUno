@@ -30,19 +30,21 @@ type State = {
     GameAlreadyStarted: bool
     Player: Turn
     TopCard: Card }
-
-let empty = {
-    GameAlreadyStarted = false
-    Player = Turn.empty
-    TopCard = Digit(0,Red) }
+    with
+    static member initial = {
+        GameAlreadyStarted = false
+        Player = Turn.empty
+        TopCard = Digit(0,Red) }
 
 // Operations on the DiscardPile aggregate
 
-let startGame gameId playerCount firstCard state =
-    if playerCount <= 2 then invalidArg "playerCount" "You should be at least 3 players"
+let startGame (command: StartGame) state =
+    if command.PlayerCount <= 2 then invalidArg "playerCount" "You should be at least 3 players"
     if state.GameAlreadyStarted then invalidOp "You cannot start game twice"
 
-    [ GameStarted(gameId, playerCount, firstCard) ]
+    [ GameStarted { GameId = command.GameId
+                    PlayerCount = command.PlayerCount
+                    FirstCard = command.FirstCard } ]
 
 
 
@@ -61,12 +63,14 @@ let startGame gameId playerCount firstCard state =
 
 
 
-let playCard gameId player card state =
-    if state.Player |> Turn.isNot player then invalidOp "Player should play at his turn"
+let playCard (command: PlayCard) state =
+    if state.Player |> Turn.isNot command.Player then invalidOp "Player should play at his turn"
 
-    match card, state.TopCard with
+    match command.Card, state.TopCard with
     | Digit(n1, color1), Digit(n2, color2) when n1 = n2 || color1 = color2 ->
-        [ CardPlayed(gameId, player, card )]
+        [ CardPlayed { GameId = command.GameId
+                       Player = command.Player
+                       Card = command.Card }]
     | _ -> invalidOp "Play same color or same value !"
 
 
@@ -87,8 +91,8 @@ let playCard gameId player card state =
 
 let handle =
     function
-    | StartGame(gameId, playerCount, firstCard) -> startGame gameId playerCount firstCard
-    | PlayCard(gameId, player, card) -> playCard gameId player card
+    | StartGame command -> startGame command 
+    | PlayCard command -> playCard command 
 
 
 
@@ -105,20 +109,17 @@ let handle =
 
 // Applies state changes for events
 
-let apply state =
+let evolve state =
     function
-    | GameStarted(_, playerCount, firstCard) -> 
+    | GameStarted e -> 
         { GameAlreadyStarted = true
-          Player = Turn.start playerCount
-          TopCard = firstCard }
+          Player = Turn.start e.PlayerCount
+          TopCard = e.FirstCard }
 
-    | CardPlayed(_, _, card) ->
+    | CardPlayed e ->
         { state with
             Player = state.Player |> Turn.next 
-            TopCard = card }
+            TopCard = e.Card }
 
-// Replays all events from start to get current state
-
-let replay events = List.fold apply empty events
 
 

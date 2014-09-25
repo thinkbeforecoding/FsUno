@@ -5,6 +5,8 @@ open System
 type EventHandler() =
     let mutable turnCount = 0
 
+    let gameId = function GameId id -> id
+
     let setColor card =
         let color = 
             match card with
@@ -20,14 +22,14 @@ type EventHandler() =
     
     member this.Handle =
         function
-        | GameStarted(gameId, playerCount, firstCard) ->
-            printfn "Game %d started with %d players" gameId playerCount
-            setColor firstCard
-            printfn "First card: %A" firstCard
+        | GameStarted e ->
+            printfn "Game %d started with %d players" (gameId e.GameId) e.PlayerCount
+            setColor e.FirstCard
+            printfn "First card: %A" e.FirstCard
 
-        | CardPlayed(gameId, player, card) ->
+        | CardPlayed e ->
             turnCount <- turnCount + 1
-            setColor card
-            printfn "[%d] Player %d played %A" turnCount player card
+            setColor e.Card
+            printfn "[%d] Player %d played %A" turnCount e.Player e.Card
 
 

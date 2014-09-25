@@ -2,11 +2,17 @@
 
 open Game
 
+let gameId =
+    function
+    | StartGame { GameId = GameId id } -> id
+    | PlayCard { GameId = GameId id }  -> id
+
 // The discard pile command handler is the link
 // between the command, the event store and the aggregate
 // This version loads the aggregate from scratch for each command
 // This is usually ok for aggregates with a small number of events
 module Game =
+
 
     let create readStream appendToStream =
 
@@ -15,11 +21,11 @@ module Game =
         let load gameId =
             let rec fold state version =
                 let events, lastEvent, nextEvent = readStream (streamId gameId) version 500
-                let state = List.fold apply state events
+                let state = List.fold evolve state events
                 match nextEvent with
                 | None -> lastEvent, state
                 | Some n -> fold state n
-            fold empty 0
+            fold State.initial 0
 
         let save gameId expectedVersion events = appendToStream (streamId gameId) expectedVersion events
 
@@ -56,11 +62,11 @@ module Async =
                     let! events, lastEvent, nextEvent = 
                         readStream (streamId gameId) version 500
 
-                    let state = List.fold apply state events
+                    let state = List.fold evolve state events
                     match nextEvent with
                     | None -> return lastEvent, state
                     | Some n -> return! fold state n }
-                fold empty 0
+                fold State.initial 0
 
             let save gameId expectedVersion events = 
                 appendToStream (streamId gameId) expectedVersion events
@@ -74,7 +80,7 @@ module Async =
                             let events = handle command state
                             do! save gameId version events
 
-                            let newState = List.fold apply state events
+                            let newState = List.fold evolve state events
                             return! loop (version + List.length events) newState  }
                     async {
                         let! version, state = load gameId
