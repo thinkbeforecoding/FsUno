@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsUno", "FsUno\FsUno.fsproj", "{B289FB60-57BC-4270-8E49-517A0E369EBF}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsUno.Tests", "FsUno.Tests\FsUno.Tests.fsproj", "{6DE8150D-911D-42EE-BEDC-307759576D1B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FA36D1C5-164C-4F5F-A537-E2253A0526C6}"
+	ProjectSection(SolutionItems) = preProject
+		.paket\paket.bootstrapper.exe = .paket\paket.bootstrapper.exe
+		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
+		.paket\paket.targets = .paket\paket.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
