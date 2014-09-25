@@ -55,8 +55,6 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
     <Compile Include="Deck.fs" />
-    <Compile Include="Commands.fs" />
-    <Compile Include="Events.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="CommandHandler.fs" />
     <Compile Include="EventHandler.fs" />

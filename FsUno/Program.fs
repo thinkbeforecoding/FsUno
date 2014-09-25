@@ -1,4 +1,5 @@
 ﻿open FsUno
+open Game
 open CommandHandlers
 
 //open ToyInMemoryEventStore

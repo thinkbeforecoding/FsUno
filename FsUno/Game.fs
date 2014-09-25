@@ -1,5 +1,65 @@
 ﻿module Game
 
+type GameId = GameId of int
+
+
+
+/// Commands for the game discard pile
+type Command =
+    | StartGame of StartGame
+    | PlayCard of PlayCard 
+
+and StartGame = {
+    GameId: GameId
+    PlayerCount: int
+    FirstCard: Card }
+
+and PlayCard = {
+    GameId: GameId
+    Player: int
+    Card: Card }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// Events for the game discard pile
+type Event =
+    | GameStarted of GameStarted 
+    | CardPlayed of CardPlayed 
+
+and GameStarted = {
+    GameId: GameId
+    PlayerCount: int
+    FirstCard: Card }
+
+and CardPlayed = {
+    GameId: GameId
+    Player: int
+    Card: Card }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // A type representing current player turn
 // All operation should be done inside the module
 
@@ -35,6 +95,15 @@ type State = {
         GameAlreadyStarted = false
         Player = Turn.empty
         TopCard = Digit(0,Red) }
+
+
+
+
+
+
+
+
+
 
 // Operations on the DiscardPile aggregate
 

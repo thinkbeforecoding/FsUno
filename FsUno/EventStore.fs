@@ -1,6 +1,7 @@
 ﻿namespace FsUno
 
 open System
+open Game
 
 exception WrongExpectedVersion
 
