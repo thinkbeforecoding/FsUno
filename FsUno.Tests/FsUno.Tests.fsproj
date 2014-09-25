@@ -81,6 +81,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
@@ -188,5 +189,4 @@
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="$(SolutionDir)\.paket\paket.targets" />
 </Project>

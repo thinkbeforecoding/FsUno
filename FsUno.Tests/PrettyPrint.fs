@@ -1,5 +1,6 @@
 ﻿[<AutoOpen>]
 module PrettyPrint
+open Game
 
 let printCard =
     function

@@ -13,7 +13,7 @@ open CommandHandlers
 
 [<EntryPoint>]
 let main _ = 
-    
+     
     let eventHandler = new EventHandler()
     use store = 
         create()

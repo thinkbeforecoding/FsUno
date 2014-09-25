@@ -2,6 +2,7 @@
 
 open Xunit
 open System
+open Game
 
 [<Fact>]
 let ``Same color should be accepted``() =
